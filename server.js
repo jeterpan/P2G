@@ -1,17 +1,19 @@
 const path = require('path');
 const http = require('http');
-
+const url = require('url');
 const express = require('express');
-const router = require('./router.js')
 const socketio = require('socket.io');
-
 const formatMessage = require('./utils/messages');
 const {
   userJoin,
   getCurrentUser,
   userLeave,
-  getRoomUsers
+  getRoomUsers,
+  getUserByName
 } = require('./utils/users');
+const { EventEmitter } = require('events');
+
+const myEmitter = new EventEmitter()
 
 const app = express();
 const server = http.createServer(app);
@@ -20,26 +22,40 @@ const io = socketio(server);
 // Set static folder
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/api', router);
+app.get('/', function (req, res) {
+	res.sendFile(__dirname + '/public/index.html')
+})
 
-const botName = 'ChatCord Bot';
+app.post('/api/notify/:event?:scope?:room?:player?', function (req, res) {
+    
+  global.context = url.parse(req.url,true).query
+
+  console.log(global.context)
+
+  myEmitter.emit('msgFromGod')
+
+  res.status(200).json(global.context)
+
+})
+
+const botName = 'P2G Node Server';
 
 // Run when client connects
 io.on('connection', socket => {
-  socket.on('joinRoom', ({ username, room }) => {
-    const user = userJoin(socket.id, username, room);
+  socket.on('joinRoom', ({ username, privilege, room }) => {
+    const user = userJoin(socket.id, username, privilege, room);
 
     socket.join(user.room);
 
     // Welcome current user
-    socket.emit('message', formatMessage(botName, 'Welcome to ChatCord!'));
+    socket.emit('message', formatMessage(botName, 'Welcome to P2G!'));
 
     // Broadcast when a user connects
     socket.broadcast
       .to(user.room)
       .emit(
         'message',
-        formatMessage(botName, `${user.username} has joined the chat`)
+        formatMessage(botName, `${user.username} has joined the room`)
       );
 
     // Send users and room info
@@ -49,11 +65,29 @@ io.on('connection', socket => {
     });
   });
 
+  if( ! myEmitter.eventNames().includes('msgFromGod') ) {
+      myEmitter.on('msgFromGod', () => {
+
+        const user = getUserByName(global.context.player)
+        // Broadcast when a user connects
+        socket.broadcast
+        .to(user.room)
+        .emit(
+          'message',
+          formatMessage('God', `Event ${context.event} from God`)
+        );
+    });
+  }
+
+
+
   // Listen for chatMessage
   socket.on('chatMessage', msg => {
     const user = getCurrentUser(socket.id);
+    if(user.privilege === 'manager') {
 
-    io.to(user.room).emit('message', formatMessage(user.username, msg));
+        io.to(user.room).emit('message', formatMessage(user.username, msg));
+    }
   });
 
   // Runs when client disconnects
@@ -63,7 +97,7 @@ io.on('connection', socket => {
     if (user) {
       io.to(user.room).emit(
         'message',
-        formatMessage(botName, `${user.username} has left the chat`)
+        formatMessage(botName, `${user.username} has left the room`)
       );
 
       // Send users and room info
