@@ -1,5 +1,6 @@
+const fs = require('fs')
 const path = require('path');
-const http = require('http');
+const https = require('https');
 const url = require('url');
 const express = require('express');
 const socketio = require('socket.io');
@@ -16,7 +17,12 @@ const { EventEmitter } = require('events');
 const myEmitter = new EventEmitter()
 
 const app = express();
-const server = http.createServer(app);
+
+const server = new https.createServer({
+  cert: fs.readFileSync('/etc/letsencrypt/live/gather2poker.com.br-0001/cert.pem'),
+  key: fs.readFileSync('/etc/letsencrypt/live/gather2poker.com.br-0001/privkey.pem')
+}, app);
+
 const io = socketio(server);
 
 // Set static folder
@@ -39,6 +45,7 @@ app.post('/api/notify/:event?:scope?:room?:player?', function (req, res) {
 })
 
 const botName = 'P2G Node Server';
+
 
 // Run when client connects
 io.on('connection', socket => {
@@ -80,7 +87,6 @@ io.on('connection', socket => {
   }
 
 
-
   // Listen for chatMessage
   socket.on('chatMessage', msg => {
     const user = getCurrentUser(socket.id);
@@ -109,6 +115,6 @@ io.on('connection', socket => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 443;
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
