@@ -23,6 +23,10 @@ const server = new https.createServer({
   key: fs.readFileSync('/etc/letsencrypt/live/gather2poker.com.br-0001/privkey.pem')
 }, app);
 
+const PORT = process.env.PORT || 8080;
+
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
 const io = socketio(server);
 
 // Set static folder
@@ -115,6 +119,4 @@ io.on('connection', socket => {
   });
 });
 
-const PORT = process.env.PORT || 443;
 
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
