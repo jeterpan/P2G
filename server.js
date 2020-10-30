@@ -52,7 +52,7 @@ const botName = 'P2G Node Server';
 
 
 // Run when client connects
-io.on('connection', socket => {
+io.sockets.on('connection', socket => {
   socket.on('joinRoom', ({ username, privilege, room }) => {
     const user = userJoin(socket.id, username, privilege, room);
 
