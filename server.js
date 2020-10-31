@@ -85,7 +85,7 @@ io.sockets.on('connection', socket => {
           const user = getUserByName(global.context.player)
           // Broadcast when a user connects
           socket.broadcast
-          .to(user.username)
+          .to(user.id)
           .emit(
             'message',
             formatMessage('backend', `${context.event}`)
