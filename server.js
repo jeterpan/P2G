@@ -136,7 +136,7 @@ io.sockets.on('connection', socket => {
           console.log(`Room users: ${roomUsers}`)
           console.log(typeof roomUsers)
 
-          if ( roomUsers.length() > 0 ) {
+          if ( roomUsers.length > 0 ) {
             socket.broadcast
             .to(ctx.room)
             .emit(
