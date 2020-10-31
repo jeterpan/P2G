@@ -131,12 +131,12 @@ io.sockets.on('connection', socket => {
           console.log(`ctx.room: ${ctx.room}`)
           
           // Get room users
-          const roomUsers = getRoomUsers(ctx.room).room
+          const roomUsers = getRoomUsers(ctx.room)
 
           console.log(`Room users: ${roomUsers}`)
           console.log(typeof roomUsers)
 
-          if ( roomUsers ) {
+          if ( roomUsers.length() > 0 ) {
             socket.broadcast
             .to(ctx.room)
             .emit(
