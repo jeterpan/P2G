@@ -132,6 +132,7 @@ io.sockets.on('connection', socket => {
           const roomUsers = getRoomUsers(ctx.room)
 
           console.log(`Room users: ${roomUsers}`)
+          console.log(typeof roomUsers)
 
           if ( roomUsers ) {
             socket.broadcast
