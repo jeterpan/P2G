@@ -127,8 +127,13 @@ io.sockets.on('connection', socket => {
 
           //const user = getUserByName(global.context.room)
           // Broadcast to a specific room
+          
+          // Get room users
+          const roomUsers = getRoomUsers(ctx.room)
 
-          if ( getRoomUsers(ctx.room) ) {
+          console.log(`Room users: ${roomUsers}`)
+
+          if ( roomUsers ) {
             socket.broadcast
             .to(ctx.room)
             .emit(
