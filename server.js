@@ -80,14 +80,26 @@ io.sockets.on('connection', socket => {
   if( ! myEmitter.eventNames().includes('msgFromGod') ) {
       myEmitter.on('msgFromGod', () => {
 
-        const user = getUserByName(global.context.player)
-        // Broadcast when a user connects
-        socket.broadcast
-        .to(user.room)
-        .emit(
-          'message',
-          formatMessage('God', `Event ${context.event} from God`)
-        );
+        if(global.context.player) {
+          const user = getUserByName(global.context.player)
+          // Broadcast when a user connects
+          socket.broadcast
+          .to(user.room)
+          .emit(
+            'message',
+            formatMessage('God', `Event ${context.event} from God`)
+          );
+        } else {
+          //const user = getUserByName(global.context.room)
+          // Broadcast when a user connects
+          socket.broadcast
+          .to(global.context.room)
+          .emit(
+            'message',
+            formatMessage('God', `Event ${context.event} from God`)
+          );
+        }
+
     });
   }
 
