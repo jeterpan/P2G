@@ -143,6 +143,8 @@ io.sockets.on('connection', socket => {
             );
   
             res.status(200).json(ctx)
+          } else {
+            res.status(400).json(ctx)
           }
 
         } else {
