@@ -50,7 +50,7 @@ app.post('/api/game', function (req, res) {
 
 })
 
-const botName = 'P2G Node Server';
+const botName = 'P2G Websocket Server';
 
 
 // Run when client connects
@@ -85,7 +85,7 @@ io.sockets.on('connection', socket => {
           const user = getUserByName(global.context.player)
           // Broadcast when a user connects
           socket.broadcast
-          .to(user.room)
+          .to(user.username)
           .emit(
             'message',
             formatMessage('backend', `${context.event}`)
