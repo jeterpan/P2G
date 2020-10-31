@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path');
-require('https').globalAgent.options.ca = require('ssl-root-cas/latest').create();
+//require('https').globalAgent.options.ca = require('ssl-root-cas/latest').create();
 const https = require('https');
 const url = require('url');
 const express = require('express');
