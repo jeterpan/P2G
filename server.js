@@ -38,7 +38,7 @@ app.get('/', function (req, res) {
 })
 
 //app.post('/api/game/:event?/:room?/:player?', function (req, res) {
-app.post('/api/game?event=details&room=1player=Pedro', function (req, res) {
+app.post('/api/game', function (req, res) {
     
   global.context = url.parse(req.url,true).query
 
@@ -88,7 +88,7 @@ io.sockets.on('connection', socket => {
           .to(user.room)
           .emit(
             'message',
-            formatMessage('God', `"event": "${context.event}"`)
+            formatMessage('backend', `${context.event}`)
           );
         } else {
           //const user = getUserByName(global.context.room)
