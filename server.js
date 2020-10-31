@@ -42,11 +42,13 @@ app.post('/api/game', function (req, res) {
     
   global.context = url.parse(req.url,true).query
 
+  const ctxparam = url.parse(req.url,true).query
+
   console.log(global.context)
 
-  myEmitter.emit('msgFromGod')
+  myEmitter.emit('msgFromGod', ctxparam)
 
-  res.status(200).json(global.context)
+  //res.status(200).json(global.context)
 
 })
 
@@ -78,10 +80,18 @@ io.sockets.on('connection', socket => {
     });
   });
 
+  // Check if event msgFromGod is already instantiated, if not:
   if( ! myEmitter.eventNames().includes('msgFromGod') ) {
-      myEmitter.on('msgFromGod', () => {
 
-        if(global.context.player) {
+      // create the instance
+      // We choose instantiate here inside the io.socket.on('connection')
+      //  this way we are able to send msg to all available chosen rooms or chosen players needed
+      myEmitter.on('msgFromGod', (ctx) => {
+
+        //if(global.context.player) {
+        if(ctx.player) {
+
+          /*
           const user = getUserByName(global.context.player)
           // Broadcast when a user connects
           socket.broadcast
@@ -90,15 +100,47 @@ io.sockets.on('connection', socket => {
             'message',
             formatMessage('backend', `${context.event}`)
           );
-        } else {
+          */
+
+          const user = getUserByName(ctx.player)
+          // Broadcast to a specific user
+          socket.broadcast
+          .to(user.id)
+          .emit(
+            'message',
+            formatMessage('backend', `${ctx.event}`)
+          );
+
+          res.status(200).json(ctx)
+        } else if (ctx.room) {
+
+          /*
           //const user = getUserByName(global.context.room)
-          // Broadcast when a user connects
+          // Broadcast to a specific room
           socket.broadcast
           .to(global.context.room)
           .emit(
             'message',
             formatMessage('backend', `${context.event}`)
           );
+          */
+
+          //const user = getUserByName(global.context.room)
+          // Broadcast to a specific room
+
+          if ( getRoomUsers(ctx.room) ) {
+            socket.broadcast
+            .to(ctx.room)
+            .emit(
+              'message',
+              formatMessage('backend', `${ctx.event}`)
+            );
+  
+            res.status(200).json(ctx)
+          }
+
+        } else {
+          res.status(400).json(ctx)
         }
 
     });
