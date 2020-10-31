@@ -129,7 +129,7 @@ io.sockets.on('connection', socket => {
           // Broadcast to a specific room
           
           // Get room users
-          const roomUsers = getRoomUsers(ctx.room)
+          const roomUsers = getRoomUsers(ctx.room).room
 
           console.log(`Room users: ${roomUsers}`)
           console.log(typeof roomUsers)
