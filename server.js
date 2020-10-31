@@ -23,7 +23,7 @@ const server = new https.createServer({
   key: fs.readFileSync('/etc/letsencrypt/live/gather2poker.com.br-0001/privkey.pem')
 }, app);
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 443;
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
@@ -36,7 +36,7 @@ app.get('/', function (req, res) {
 	res.sendFile(__dirname + '/public/index.html')
 })
 
-app.post('/api/notify/:event?:scope?:room?:player?', function (req, res) {
+app.post('/api/game/:event?:room?:player?', function (req, res) {
     
   global.context = url.parse(req.url,true).query
 
