@@ -46,7 +46,7 @@ app.post('/api/game', function (req, res) {
 
   console.log(global.context)
 
-  myEmitter.emit('msgFromGod', ctxparam)
+  myEmitter.emit('msgFromGod', ctxparam, res)
 
   //res.status(200).json(global.context)
 
@@ -86,7 +86,7 @@ io.sockets.on('connection', socket => {
       // create the instance
       // We choose instantiate here inside the io.socket.on('connection')
       //  this way we are able to send msg to all available chosen rooms or chosen players needed
-      myEmitter.on('msgFromGod', (ctx) => {
+      myEmitter.on('msgFromGod', (ctx, res) => {
 
         //if(global.context.player) {
         if(ctx.player) {
