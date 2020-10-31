@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path');
+require('https').globalAgent.options.ca = require('ssl-root-cas/latest').create();
 const https = require('https');
 const url = require('url');
 const express = require('express');
@@ -36,7 +37,7 @@ app.get('/', function (req, res) {
 	res.sendFile(__dirname + '/public/index.html')
 })
 
-app.post('/api/game/:event?:room?:player?', function (req, res) {
+app.post('/api/game/:event?/:room?/:player?', function (req, res) {
     
   global.context = url.parse(req.url,true).query
 
