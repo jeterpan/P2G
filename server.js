@@ -98,15 +98,21 @@ io.sockets.on('connection', socket => {
             if(ctx.player) {
     
               const user = getUserByName(ctx.player)
-              // Broadcast to a specific user
-              socket.broadcast
-              .to(user.id)
-              .emit(
-                'message',
-                formatMessage('backend', `${ctx.event}`)
-              );
-    
-              res.status(200).json({ success: true, ...ctx })
+
+              if(user.id) {
+                // Broadcast to a specific user
+                socket.broadcast
+                .to(user.id)
+                .emit(
+                  'message',
+                  formatMessage('backend', `${ctx.event}`)
+                );
+      
+                res.status(200).json({ success: true, ...ctx })
+
+              } else {
+                res.status(400).json({ success: false, error: 'User not found', ...ctx})    
+              }
 
             } else {
 
@@ -120,7 +126,7 @@ io.sockets.on('connection', socket => {
               res.status(200).json({ success: true, ...ctx })
     
             }
-            
+
           } else {
             res.status(400).json({ success: false, error: 'Room not found', ...ctx})
           }
