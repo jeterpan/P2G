@@ -99,7 +99,7 @@ io.sockets.on('connection', socket => {
     
               const user = getUserByName(ctx.player)
 
-              if(!typeof user.id == undefined) {
+              if(!typeof user == undefined) {
                 // Broadcast to a specific user
                 socket.broadcast
                 .to(user.id)
