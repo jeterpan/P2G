@@ -88,19 +88,48 @@ io.sockets.on('connection', socket => {
       //  this way we are able to send msg to all available chosen rooms or chosen players needed
       myEmitter.on('msgFromGod', (ctx, res) => {
 
+        if(ctx.room) {
+
+          // Get room users
+          const roomUsers = getRoomUsers(ctx.room)
+
+          if ( roomUsers.length > 0 ) {
+
+            if(ctx.player) {
+    
+              const user = getUserByName(ctx.player)
+              // Broadcast to a specific user
+              socket.broadcast
+              .to(user.id)
+              .emit(
+                'message',
+                formatMessage('backend', `${ctx.event}`)
+              );
+    
+              res.status(200).json({ success: true, ...ctx })
+
+            } else {
+
+              socket.broadcast
+              .to(ctx.room)
+              .emit(
+                'message',
+                formatMessage('backend', `${ctx.event}`)
+              );
+    
+              res.status(200).json({ success: true, ...ctx })
+    
+            }
+            
+          } else {
+            res.status(400).json({ success: false, error: 'Room not found', ...ctx})
+          }
+          
+        }
+/*
         //if(global.context.player) {
         if(ctx.player) {
 
-          /*
-          const user = getUserByName(global.context.player)
-          // Broadcast when a user connects
-          socket.broadcast
-          .to(user.id)
-          .emit(
-            'message',
-            formatMessage('backend', `${context.event}`)
-          );
-          */
 
           const user = getUserByName(ctx.player)
           // Broadcast to a specific user
@@ -114,16 +143,7 @@ io.sockets.on('connection', socket => {
           res.status(200).json(ctx)
         } else if (ctx.room) {
 
-          /*
-          //const user = getUserByName(global.context.room)
-          // Broadcast to a specific room
-          socket.broadcast
-          .to(global.context.room)
-          .emit(
-            'message',
-            formatMessage('backend', `${context.event}`)
-          );
-          */
+
 
           //const user = getUserByName(global.context.room)
           // Broadcast to a specific room
@@ -152,7 +172,7 @@ io.sockets.on('connection', socket => {
         } else {
           res.status(400).json(ctx)
         }
-
+*/
     });
   }
 
