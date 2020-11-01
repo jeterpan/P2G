@@ -111,7 +111,7 @@ io.sockets.on('connection', socket => {
                 res.status(200).json({ success: true, ...ctx })
 
               } else {
-                res.status(400).json({ success: false, error: 'User not found', ...ctx})    
+                res.status(400).json({ success: false, error: `User ${ctx.player} not found in room ${ctx.room}`, ...ctx})    
               }
 
             } else {
@@ -128,7 +128,7 @@ io.sockets.on('connection', socket => {
             }
 
           } else {
-            res.status(400).json({ success: false, error: 'Room not found', ...ctx})
+            res.status(400).json({ success: false, error: `Room ${ctx.room} not found`, ...ctx})
           }
           
         }
