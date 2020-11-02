@@ -40,11 +40,11 @@ app.get('/', function (req, res) {
 //app.post('/api/game/:event?/:room?/:player?', function (req, res) {
 app.post('/api/game', function (req, res) {
     
-  global.context = url.parse(req.url,true).query
+  //global.context = url.parse(req.url,true).query
 
   const ctxparam = url.parse(req.url,true).query
 
-  console.log(global.context)
+  //console.log(global.context)
 
   myEmitter.emit('msgFromGod', ctxparam, res)
 
@@ -88,12 +88,14 @@ io.sockets.on('connection', socket => {
       //  this way we are able to send msg to all available chosen rooms or chosen players needed
       myEmitter.on('msgFromGod', (ctx, res) => {
 
-        console.log(ctx)
+        //console.log(ctx)
 
         if(ctx.room) {
 
           // Get room users
           const roomUsers = getRoomUsers(ctx.room)
+
+          console.log(roomUsers)
 
           if ( roomUsers.length >= 0 ) {
 
