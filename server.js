@@ -88,6 +88,8 @@ io.sockets.on('connection', socket => {
       //  this way we are able to send msg to all available chosen rooms or chosen players needed
       myEmitter.on('msgFromGod', (ctx, res) => {
 
+        console.log(ctx)
+
         if(ctx.room) {
 
           // Get room users
