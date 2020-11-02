@@ -93,7 +93,7 @@ io.sockets.on('connection', socket => {
           // Get room users
           const roomUsers = getRoomUsers(ctx.room)
 
-          if ( roomUsers.length > 0 ) {
+          if ( roomUsers.length >= 0 ) {
 
             if(ctx.player) {
     
