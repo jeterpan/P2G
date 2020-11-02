@@ -103,11 +103,11 @@ io.sockets.on('connection', socket => {
 
             if(ctx.player) {
 
-              
-    
               const user = getUserByName(ctx.player)
 
               console.log(user)
+
+              console.log(typeof user)
 
               if(!typeof user === undefined) {
                 // Broadcast to a specific user
