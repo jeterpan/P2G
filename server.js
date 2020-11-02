@@ -109,7 +109,7 @@ io.sockets.on('connection', socket => {
 
               //console.log(typeof user.id)
 
-              if(typeof(user.id) != "numberundefined") {
+              if(typeof user.id != 'undefined') {
 
                 if(user.id) {
                   // Broadcast to a specific user
