@@ -109,17 +109,24 @@ io.sockets.on('connection', socket => {
 
               console.log(typeof user.id)
 
+              if(typeof(user.id) != 'undefined') {
+
+                if(user.id) {
+                  // Broadcast to a specific user
+                  socket.broadcast
+                  .to(user.id)
+                  .emit(
+                    'message',
+                    formatMessage('backend', `${ctx.event}`)
+                  );
+        
+                  res.status(200).json({ success: true, ...ctx })
+  
+                } else {
+                  res.status(400).json({ success: false, error: `User ${ctx.player} not found in room ${ctx.room}`, ...ctx})    
+                }
+
               //if(!typeof user.id === undefined) {
-              if(user.id) {
-                // Broadcast to a specific user
-                socket.broadcast
-                .to(user.id)
-                .emit(
-                  'message',
-                  formatMessage('backend', `${ctx.event}`)
-                );
-      
-                res.status(200).json({ success: true, ...ctx })
 
               } else {
                 res.status(400).json({ success: false, error: `User ${ctx.player} not found in room ${ctx.room}`, ...ctx})    
