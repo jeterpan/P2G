@@ -103,7 +103,9 @@ io.sockets.on('connection', socket => {
 
             if(ctx.player) {
 
-              const user = getUserByName(ctx.player)
+              let user = {}
+
+              user = getUserByName(ctx.player)
 
               //console.log(user.id)
 
