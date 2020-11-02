@@ -99,9 +99,15 @@ io.sockets.on('connection', socket => {
 
           if ( roomUsers.length >= 0 ) {
 
+            console.log(ctx.player)
+
             if(ctx.player) {
+
+              
     
               const user = getUserByName(ctx.player)
+
+              console.log(user)
 
               if(!typeof user == undefined) {
                 // Broadcast to a specific user
