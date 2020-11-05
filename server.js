@@ -118,7 +118,7 @@ io.sockets.on('connection', socket => {
                   socket.broadcast
                   .to(user.id)
                   .emit(
-                    'message',
+                    'action',
                     formatMessage('backend', `${ctx.event}`)
                   );
         
@@ -139,7 +139,7 @@ io.sockets.on('connection', socket => {
               socket.broadcast
               .to(ctx.room)
               .emit(
-                'message',
+                'action',
                 formatMessage('backend', `${ctx.event}`)
               );
     
