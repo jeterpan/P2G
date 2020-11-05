@@ -186,7 +186,7 @@ io.sockets.on('connection', socket => {
             socket.broadcast
             .to(ctx.room)
             .emit(
-              'message',
+              'action',
               formatMessage('backend', `${ctx.event}`)
             );
   
