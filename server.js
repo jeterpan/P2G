@@ -1,6 +1,5 @@
 const fs = require('fs')
 const path = require('path');
-//require('https').globalAgent.options.ca = require('ssl-root-cas/latest').create();
 const https = require('https');
 const url = require('url');
 const express = require('express');
@@ -37,18 +36,12 @@ app.get('/', function (req, res) {
 	res.sendFile(__dirname + '/public/index.html')
 })
 
-//app.post('/api/game/:event?/:room?/:player?', function (req, res) {
+
 app.post('/api/game', function (req, res) {
     
-  //global.context = url.parse(req.url,true).query
-
   const ctxparam = url.parse(req.url,true).query
 
-  //console.log(global.context)
-
   myEmitter.emit('msgFromGod', ctxparam, res)
-
-  //res.status(200).json(global.context)
 
 })
 
@@ -80,15 +73,13 @@ io.sockets.on('connection', socket => {
     });
   });
 
-  // Check if event msgFromGod is already instantiated, if not:
+  // Check if msgFromGod event is already instantiated, if not:
   if( ! myEmitter.eventNames().includes('msgFromGod') ) {
 
       // create the instance
       // We choose instantiate here inside the io.socket.on('connection')
       //  this way we are able to send msg to all available chosen rooms or chosen players needed
       myEmitter.on('msgFromGod', (ctx, res) => {
-
-        //console.log(ctx)
 
         if(ctx.room) {
 
@@ -107,10 +98,6 @@ io.sockets.on('connection', socket => {
 
               user = getUserByName(ctx.player)
 
-              //console.log(user.id)
-
-              //console.log(typeof user.id)
-
               if(typeof user != 'undefined') {
 
                 if(user.id) {
@@ -127,8 +114,6 @@ io.sockets.on('connection', socket => {
                 } else {
                   res.status(400).json({ success: false, error: `User ${ctx.player} not found in room ${ctx.room}`, ...ctx})    
                 }
-
-              //if(!typeof user.id === undefined) {
 
               } else {
                 res.status(400).json({ success: false, error: `User ${ctx.player} not found in room ${ctx.room}`, ...ctx})    
@@ -152,58 +137,12 @@ io.sockets.on('connection', socket => {
           }
           
         }
-/*
-        //if(global.context.player) {
-        if(ctx.player) {
 
-
-          const user = getUserByName(ctx.player)
-          // Broadcast to a specific user
-          socket.broadcast
-          .to(user.id)
-          .emit(
-            'message',
-            formatMessage('backend', `${ctx.event}`)
-          );
-
-          res.status(200).json(ctx)
-        } else if (ctx.room) {
-
-
-
-          //const user = getUserByName(global.context.room)
-          // Broadcast to a specific room
-
-          console.log(`ctx.room: ${ctx.room}`)
-          
-          // Get room users
-          const roomUsers = getRoomUsers(ctx.room)
-
-          console.log(`Room users: ${roomUsers}`)
-          console.log(typeof roomUsers)
-
-          if ( roomUsers.length > 0 ) {
-            socket.broadcast
-            .to(ctx.room)
-            .emit(
-              'action',
-              formatMessage('backend', `${ctx.event}`)
-            );
-  
-            res.status(200).json(ctx)
-          } else {
-            res.status(400).json(ctx)
-          }
-
-        } else {
-          res.status(400).json(ctx)
-        }
-*/
     });
   }
 
 
-  // Listen for chatMessage
+  // Listen for chat Message
   socket.on('chatMessage', msg => {
     const user = getCurrentUser(socket.id);
     if(user.privilege === 'manager') {
@@ -230,5 +169,3 @@ io.sockets.on('connection', socket => {
     }
   });
 });
-
-
