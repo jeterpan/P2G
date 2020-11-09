@@ -1,5 +1,7 @@
+const fs = require('fs')
 const path = require('path');
-const http = require('http');
+//require('https').globalAgent.options.ca = require('ssl-root-cas/latest').create();
+const https = require('https');
 const url = require('url');
 const express = require('express');
 const socketio = require('socket.io');
@@ -16,7 +18,16 @@ const { EventEmitter } = require('events');
 const myEmitter = new EventEmitter()
 
 const app = express();
-const server = http.createServer(app);
+
+const server = new https.createServer({
+  cert: fs.readFileSync('/etc/letsencrypt/live/gather2poker.com.br-0001/cert.pem'),
+  key: fs.readFileSync('/etc/letsencrypt/live/gather2poker.com.br-0001/privkey.pem')
+}, app);
+
+const PORT = process.env.PORT || 443;
+
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
 const io = socketio(server);
 
 // Set static folder
@@ -26,22 +37,26 @@ app.get('/', function (req, res) {
 	res.sendFile(__dirname + '/public/index.html')
 })
 
-app.post('/api/notify/:event?:scope?:room?:player?', function (req, res) {
+//app.post('/api/game/:event?/:room?/:player?', function (req, res) {
+app.post('/api/game', function (req, res) {
     
-  global.context = url.parse(req.url,true).query
+  //global.context = url.parse(req.url,true).query
 
-  console.log(global.context)
+  const ctxparam = url.parse(req.url,true).query
 
-  myEmitter.emit('msgFromGod')
+  //console.log(global.context)
 
-  res.status(200).json(global.context)
+  myEmitter.emit('msgFromGod', ctxparam, res)
+
+  //res.status(200).json(global.context)
 
 })
 
-const botName = 'P2G Node Server';
+const botName = 'P2G Websocket Server';
+
 
 // Run when client connects
-io.on('connection', socket => {
+io.sockets.on('connection', socket => {
   socket.on('joinRoom', ({ username, privilege, room }) => {
     const user = userJoin(socket.id, username, privilege, room);
 
@@ -65,20 +80,127 @@ io.on('connection', socket => {
     });
   });
 
+  // Check if event msgFromGod is already instantiated, if not:
   if( ! myEmitter.eventNames().includes('msgFromGod') ) {
-      myEmitter.on('msgFromGod', () => {
 
-        const user = getUserByName(global.context.player)
-        // Broadcast when a user connects
-        socket.broadcast
-        .to(user.room)
-        .emit(
-          'message',
-          formatMessage('God', `Event ${context.event} from God`)
-        );
+      // create the instance
+      // We choose instantiate here inside the io.socket.on('connection')
+      //  this way we are able to send msg to all available chosen rooms or chosen players needed
+      myEmitter.on('msgFromGod', (ctx, res) => {
+
+        //console.log(ctx)
+
+        if(ctx.room) {
+
+          // Get room users
+          const roomUsers = getRoomUsers(ctx.room)
+
+          console.log(roomUsers)
+
+          if ( roomUsers.length >= 0 ) {
+
+            console.log(ctx.player)
+
+            if(ctx.player) {
+
+              let user = {}
+
+              user = getUserByName(ctx.player)
+
+              //console.log(user.id)
+
+              //console.log(typeof user.id)
+
+              if(typeof user != 'undefined') {
+
+                if(user.id) {
+                  // Broadcast to a specific user
+                  socket.broadcast
+                  .to(user.id)
+                  .emit(
+                    'action',
+                    formatMessage('backend', `${ctx.event}`)
+                  );
+        
+                  res.status(200).json({ success: true, ...ctx })
+  
+                } else {
+                  res.status(400).json({ success: false, error: `User ${ctx.player} not found in room ${ctx.room}`, ...ctx})    
+                }
+
+              //if(!typeof user.id === undefined) {
+
+              } else {
+                res.status(400).json({ success: false, error: `User ${ctx.player} not found in room ${ctx.room}`, ...ctx})    
+              }
+
+            } else {
+
+              socket.broadcast
+              .to(ctx.room)
+              .emit(
+                'action',
+                formatMessage('backend', `${ctx.event}`)
+              );
+    
+              res.status(200).json({ success: true, ...ctx })
+    
+            }
+
+          } else {
+            res.status(400).json({ success: false, error: `Room ${ctx.room} not found`, ...ctx})
+          }
+          
+        }
+/*
+        //if(global.context.player) {
+        if(ctx.player) {
+
+
+          const user = getUserByName(ctx.player)
+          // Broadcast to a specific user
+          socket.broadcast
+          .to(user.id)
+          .emit(
+            'message',
+            formatMessage('backend', `${ctx.event}`)
+          );
+
+          res.status(200).json(ctx)
+        } else if (ctx.room) {
+
+
+
+          //const user = getUserByName(global.context.room)
+          // Broadcast to a specific room
+
+          console.log(`ctx.room: ${ctx.room}`)
+          
+          // Get room users
+          const roomUsers = getRoomUsers(ctx.room)
+
+          console.log(`Room users: ${roomUsers}`)
+          console.log(typeof roomUsers)
+
+          if ( roomUsers.length > 0 ) {
+            socket.broadcast
+            .to(ctx.room)
+            .emit(
+              'action',
+              formatMessage('backend', `${ctx.event}`)
+            );
+  
+            res.status(200).json(ctx)
+          } else {
+            res.status(400).json(ctx)
+          }
+
+        } else {
+          res.status(400).json(ctx)
+        }
+*/
     });
   }
-
 
 
   // Listen for chatMessage
@@ -109,6 +231,4 @@ io.on('connection', socket => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
 
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
